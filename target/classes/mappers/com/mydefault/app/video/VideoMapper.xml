@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mydefault.app.video.serviceimpl.VideoMapper">
+	<!--	<![CDATA[, ]]>	-->
+	
+	<select id="list" resultType="MyMap">
+		WITH V_GENRE AS (
+			SELECT CODE_ID , CODE_NM  
+	        FROM TB_CODE
+	        WHERE 
+	        	CODE_ID LIKE '%CODE_001%'
+	        AND	USE_AT = 'Y'
+	        AND DEL_AT = 'N'
+		)
+		SELECT
+			V.VIDEO_ID , 
+		    V.PARENT_VIDEO_ID , 
+		    V.VIDEO_TYPE_CODE ,
+		    C1.CODE_NM AS VIDEO_TYPE_NAME ,  
+		    V.VIDEO_NM , 
+		    V.VIDEO_EXPLAIN , 
+		    V.VIDEO_ACTOR , 
+		    V.VIDEO_PATH , 
+            
+            (
+				SELECT GROUP_CONCAT(V_GENRE.CODE_NM)
+                FROM TB_VIDEO_GENRE TEMP_VG
+                LEFT OUTER JOIN V_GENRE V_GENRE
+                ON TEMP_VG.GENRE_CODE = V_GENRE.CODE_ID
+                WHERE  V.VIDEO_ID = TEMP_VG.VIDEO_ID
+            ) AS GENRES, 
+            
+            IFNULL(VVI.COUNT,0) AS VIEW_COUNT ,
+            IFNULL(VVI.GOOD,0) AS GOOD ,
+            IFNULL(VVI.BAD,0) AS BAD 
+            
+		FROM TB_VIDEO V 
+		
+		LEFT OUTER JOIN TB_VIDEO_VIEW_INFO VVI
+        ON V.VIDEO_ID = VVI.VIDEO_ID
+        
+		LEFT OUTER JOIN TB_CODE C1 
+		ON V.VIDEO_TYPE_CODE = C1.CODE_ID AND C1.USE_AT = 'Y' AND C1.DEL_AT = 'N'
+        
+		WHERE 
+			V.USE_AT = 'Y' 
+		AND	V.DEL_AT = 'N'
+		<if test='parentFlag != null and ( parentFlag == "Y" or parentFlag == "y" )'>
+			AND ( V.PARENT_VIDEO_ID IS NULL OR V.PARENT_VIDEO_ID = '' ) 
+		</if>
+		
+		ORDER BY V.VIDEO_ID ASC
+	</select>
+	
+	<select id="singleInfo" resultType="VideoVO">
+		WITH V_GENRE AS (
+			SELECT CODE_ID , CODE_NM  
+	        FROM TB_CODE
+	        WHERE 
+	        	CODE_ID LIKE '%CODE_001%'
+	        AND	USE_AT = 'Y'
+	        AND DEL_AT = 'N'
+		)
+		SELECT
+			V.VIDEO_ID , 
+		    V.PARENT_VIDEO_ID , 
+		    V.VIDEO_TYPE_CODE ,
+		    C1.CODE_NM AS VIDEO_TYPE_NAME ,  
+		    V.VIDEO_NM , 
+		    V.VIDEO_EXPLAIN , 
+		    V.VIDEO_ACTOR , 
+		    V.VIDEO_PATH , 
+            
+            (
+				SELECT GROUP_CONCAT(V_GENRE.CODE_NM)
+                FROM TB_VIDEO_GENRE TEMP_VG
+                LEFT OUTER JOIN V_GENRE V_GENRE
+                ON TEMP_VG.GENRE_CODE = V_GENRE.CODE_ID
+                WHERE  V.VIDEO_ID = TEMP_VG.VIDEO_ID
+            ) AS GENRES, 
+            
+            IFNULL(VVI.COUNT,0) AS VIEW_COUNT ,
+            IFNULL(VVI.GOOD,0) AS GOOD ,
+            IFNULL(VVI.BAD,0) AS BAD 
+            
+		FROM TB_VIDEO V 
+		
+		LEFT OUTER JOIN TB_VIDEO_VIEW_INFO VVI
+        ON V.VIDEO_ID = VVI.VIDEO_ID
+        
+		LEFT OUTER JOIN TB_CODE C1 
+		ON V.VIDEO_TYPE_CODE = C1.CODE_ID AND C1.USE_AT = 'Y' AND C1.DEL_AT = 'N'
+        
+		WHERE
+			V.VIDEO_ID = #{videoId} 
+		AND	V.USE_AT = 'Y' 
+		AND	V.DEL_AT = 'N'
+		<if test='parentFlag != null and ( parentFlag == "Y" or parentFlag == "y" )'>
+			AND ( V.PARENT_VIDEO_ID IS NULL OR V.PARENT_VIDEO_ID = '' ) 
+		</if>
+		
+		
+		ORDER BY V.VIDEO_ID ASC
+	</select>
+</mapper>

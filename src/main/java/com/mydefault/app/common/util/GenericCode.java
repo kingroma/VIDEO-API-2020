@@ -25,6 +25,9 @@ public class GenericCode {
 	public static final String SUCCESS  = "S";				// 성공 
 	public static final String FAILURE  = "F";				// 실패  
 	
+	public static final String RESULT_KEY = "result";
+	public static final String SUCCESS_CODE = "200";
+	
 	public static final String RESULT_CD = "resultCd";		// 결과코드
 	public static final String MESSAGE 	 = "message";		// 메시지
 	

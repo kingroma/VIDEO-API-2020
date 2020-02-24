@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script  src="http://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+<body style="width:100%;height:100%;background-color:black;color:white;margin:0px;padding:0px;">
+	<div style="height:97%;min-height: 95%">
+		<div style="width:100%;height:40px;margin:0px;padding:0px;background-color:#222222;">
+			Video / 영화 / 로그인
+		</div>
+		<div id='header' style=''>
+		
+		</div>
+		
+		<div id='body' style='margin-top:10px;'>
+		
+		</div>
+	</div>
+	
+	<div style='position:fixed;top:97%;width:100%;height:3%;background-color:white;color:black'>
+		Fotter
+	</div>
+</body>
+
+<script>
+	var showTargetIdSeq = 1;
+	
+	function onClickBodyVideo(videoId,showTargetId){
+		var url = 'http://localhost:8680/app/video/api/single/info.do?videoId=' + videoId;
+		var obj = goAjax(url)
+		
+		var div = $('<div></div>');
+		
+		var img = $('<img></img>');
+		img.attr("src","http://localhost:8680/app/images/get/" + obj.videoId)
+		img.attr("width","440px")
+		img.attr("height","370px")
+		// div.append(img);
+		
+		var table = $('<table></table>');
+		var tr = $('<tr></tr>')
+		
+		var td1 = $('<td></td>')
+		var td2 = $('<td></td>')
+		
+		td1.append(img);
+		td2.append('Name : '+ obj.videoNm)
+		td2.append('</br>');
+		td2.append('Explain : '  + obj.videoExplain)
+		td2.append('</br>');
+		td2.append('Actor : ' + obj.videoActor)
+		td2.append('</br>');
+		
+		tr.append(td1);
+		tr.append(td2);
+		
+		table.append(tr);
+		div.append(table);
+		
+		$('#' + showTargetId).append(div)
+		
+		// videoNminsom
+		// videoExplain 
+		// vivdeoActor
+	}
+	
+	function addDefault(input,name){
+		var div = $('<div></div>')
+		var div1 = $('<div></div>');
+		var div2 = $('<div></div>');
+		var showDiv = $('<div></div>');
+		showDiv.attr('id','showTargetIdSeq_' + showTargetIdSeq )
+		
+		div1.append(name);
+		div1.css("margin","3px")
+		div1.css("background-color","#333333")
+		
+		for ( var i = 0 ; i < input.list.length ; i ++ ){
+			var obj = input.list[i];
+			
+			var img = $('<img></img>');
+			img.attr("src","http://localhost:8680/app/images/get/" + obj.videoId)
+			img.css("width","200px")
+			img.css("height","170px")
+			img.css("margin","3px")
+			img.attr("onclick","onClickBodyVideo('"+obj.videoId+"','showTargetIdSeq_" + showTargetIdSeq + "')")
+			div2.append(img);
+		}
+		
+		div.append(div1);
+		div.append(div2);
+		div.append(showDiv);
+		
+		$('#body').append(div);
+		showTargetIdSeq++ ;
+	}
+
+	$(document).ready(function(){
+		var ajaxHead = goAjax('http://localhost:8680/app/content/api/head/list.do')
+		
+		if (ajaxHead != null && ajaxHead.list != null ){
+			for ( var i = 0 ; i < ajaxHead.list.length ; i ++ ){
+				var div = $('<div></div>');
+				div.css("display","inline-block")
+				
+				var img = $('<img></img>');
+				img.attr("src","http://localhost:8680/app/images/get/" + ajaxHead.list[i].videoId)
+				img.css("width","98%")
+				img.css("height","250px")
+				img.css("margin","3px")
+				div.append(img);
+				$('#header').append(img);
+				
+				break;
+			}
+			
+		}
+		
+		var ajaxRecommand = goAjax('http://localhost:8680/app/content/api/recommand/list.do')
+		
+		addDefault(ajaxRecommand,'Today Recommand')
+		
+		var ajaxMyRecent = goAjax('http://localhost:8680/app/content/api/myrecent/list.do?userId=kingroma')
+		
+		addDefault(ajaxMyRecent, 'My Recent')
+		
+		var ajaxBody = goAjax('http://localhost:8680/app/content/api/body/list.do')
+		
+		if (ajaxBody != null && ajaxBody.list != null ){
+			for ( var i = 0 ; i < ajaxBody.list.length ; i ++ ){
+				var parent = ajaxBody.list[i];
+				
+				var contentNm = parent.contentNm
+				
+				var div = $('<div></div>');
+				
+				var div1 = $('<div></div>');
+				div1.append(contentNm);
+				div1.css("margin","3px")
+				div1.css("background-color","#333333")
+				
+				var div2 = $('<div></div>');
+				
+				if ( parent.child != null ){
+					for ( var j = 0 ; j < parent.child.length ; j ++ ) {
+						var child = parent.child[j];
+						
+						var img = $('<img></img>');
+						img.attr("src","http://localhost:8680/app/images/get/" + child.videoId)
+						img.css("width","200px")
+						img.css("height","170px")
+						img.css("margin","3px")
+						
+						div2.append(img);
+					}
+				}
+				
+				div.append(div1);
+				div.append(div2);
+				$('#body').append(div);
+			}
+			
+		}
+	});
+
+	function goAjax(path, params, msgAt){
+		var result = null;
+	
+		$.ajaxSettings.traditional = true;  // Array전송시 필요(jquery 1.4 이상)
+		$.ajax({
+			type: "GET", 
+			url:  path,
+			data: params,
+			async: false, 
+			cache: false,
+			dataType: "json",
+			success: function(data){
+				result = data;
+				console.log (data);
+				if(msgAt != "N" && result != null && result.message != null && result.message != ""){
+					// <br/>을 \n으로 치환
+	 	   			var re = /<br *\/?>/gi;
+	 	   			alert((result.message).replace(re, '\n')); 
+				} 
+			}, error:function (data, textStatus, jqXHR) {
+				ajaxError(data, textStatus, jqXHR);
+			}, beforeSend:function(){
+				
+		    }, complete:function(){ 
+		    }  
+		});
+		return result;
+	}
+	
+	function ajaxError(data, textStatus, jqXHR){
+	    if(textStatus == "parsererror"){ 
+	    	var pHeight = 200;
+	    	var pWidth  = 300;
+	    	var xtop    = (screen.height-pHeight)/2;
+	    	var yleft   = (screen.width-pWidth)/2;
+	    	var errWin = window.open("", "", "width="+pWidth+"px, height="+pHeight+"px, top="+xtop+"px, left="+yleft+"px, location=no, status=no, scrollbars=no"); 
+	    	//errWin.document.write(data.responseText);
+	    }else{ 
+		    alert(textStatus + " ===> " + jqXHR);		// Forbidden시 URL정보 및 권한 확인
+	    }
+	}
+
+</script>
+</html>

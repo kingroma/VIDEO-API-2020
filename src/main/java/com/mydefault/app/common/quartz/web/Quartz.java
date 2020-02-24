@@ -43,7 +43,7 @@ public class Quartz extends StdSchedulerFactory implements ApplicationContextAwa
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		executeQuartz();
+		// executeQuartz();
 	}
 	
 	@Override

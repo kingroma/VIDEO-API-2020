@@ -42,8 +42,8 @@ public class MyDaemonController extends GenericController<MyDaemonVO,MyDaemonSer
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		super.afterPropertiesSet();
-		daemonIniter(); 
-		daemonRunner();
+		// daemonIniter(); 
+		// daemonRunner();
 	}
 	
 	private void daemonIniter() {

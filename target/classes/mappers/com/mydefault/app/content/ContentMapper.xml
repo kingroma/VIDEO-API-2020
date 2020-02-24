@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mydefault.app.content.serviceimpl.ContentMapper">
+	<!--	<![CDATA[, ]]>	-->
+	
+	<select id="list" resultType="MyMap">
+		
+	</select>
+	
+	<select id="listBodyParent" resultType="MyMap">
+		SELECT
+			C.CONTENT_ID ,
+		    C.CONTENT_NM ,
+		    C.SORT_SN
+		    
+		FROM TB_CONTENT C
+		WHERE 
+			C.PARENT_CONTENT_ID IS NULL
+		AND C.CONTENT_TYPE = 'CODE_00202'
+		AND	C.USE_AT = 'Y'
+		AND C.DEL_AT = 'N'
+		ORDER BY SORT_SN ASC 
+	</select>
+	
+	<select id="listBodyChild" resultType="MyMap">
+		SELECT
+			C.CONTENT_ID ,
+            C.PARENT_CONTENT_ID , 
+            C.VIDEO_ID ,
+		    C.CONTENT_NM ,
+		    C.SORT_SN ,
+            
+            V.VIDEO_NM 
+		    
+		FROM TB_CONTENT C
+        LEFT OUTER JOIN TB_VIDEO V 
+		ON C.VIDEO_ID = V.VIDEO_ID 
+		WHERE 
+			C.PARENT_CONTENT_ID = #{parentContentId}
+		AND C.VIDEO_ID IS NOT NULL 
+		AND C.CONTENT_TYPE = 'CODE_00202'
+		AND	C.USE_AT = 'Y'
+		AND C.DEL_AT = 'N'
+		
+		ORDER BY SORT_SN ASC 
+	</select>
+	
+	<select id="listHeadChild" resultType="MyMap">
+		SELECT
+			C.CONTENT_ID ,
+            C.PARENT_CONTENT_ID , 
+            C.VIDEO_ID ,
+		    C.CONTENT_NM ,
+		    C.SORT_SN ,
+            
+            V.VIDEO_NM 
+		    
+		FROM TB_CONTENT C
+        LEFT OUTER JOIN TB_VIDEO V 
+		ON C.VIDEO_ID = V.VIDEO_ID 
+		WHERE 
+			C.PARENT_CONTENT_ID IS NOT NULL 
+		AND C.CONTENT_TYPE = 'CODE_00201'
+		AND C.VIDEO_ID IS NOT NULL 
+		AND	C.USE_AT = 'Y'
+		AND C.DEL_AT = 'N'
+		
+		ORDER BY SORT_SN ASC 
+	</select>
+	
+	<select id="listRecommand" resultType="MyMap">
+		SELECT
+			C.CONTENT_ID ,
+            C.PARENT_CONTENT_ID , 
+            C.VIDEO_ID ,
+		    C.CONTENT_NM ,
+		    C.SORT_SN ,
+            
+            V.VIDEO_NM 
+		    
+		FROM TB_CONTENT C
+        LEFT OUTER JOIN TB_VIDEO V 
+		ON C.VIDEO_ID = V.VIDEO_ID 
+		WHERE 
+			C.CONTENT_TYPE = 'CODE_00203'
+		AND C.VIDEO_ID IS NOT NULL 
+		AND	C.USE_AT = 'Y'
+		AND C.DEL_AT = 'N'
+		
+		ORDER BY SORT_SN ASC 
+	</select>
+	
+	<select id="myRecentList" resultType="MyMap">
+		SELECT 
+			RV.USER_ID , 
+		    RV.VIDEO_ID 
+		
+		FROM TB_MY_RECENT_VIDEO RV 
+		LEFT OUTER JOIN TB_VIDEO V 
+		ON RV.VIDEO_ID = V.VIDEO_ID 
+		
+		WHERE RV.USER_ID = #{userId}
+		AND RV.USE_AT = 'Y'
+		AND RV.DEL_AT = 'N'
+		AND V.USE_AT = 'Y' 
+		AND V.DEL_AT = 'N'
+		
+		ORDER BY RV.UPD_DATE 
+	</select>
+</mapper>
